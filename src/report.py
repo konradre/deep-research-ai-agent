@@ -21,6 +21,9 @@ def generate_report(
     # Extract key findings summary
     findings_summary = _extract_summary(result)
 
+    # Extract structured source content for RAG/downstream use
+    source_content = _extract_source_content(result.findings)
+
     return {
         "query": query,
         "workflow": result.workflow,
@@ -32,6 +35,7 @@ def generate_report(
         "successful_sources": result.successful_sources,
         "findings_summary": findings_summary,
         "synthesis": result.synthesis,
+        "source_content": source_content,
         "urls_discovered": result.urls_discovered,
         "actor_fee": actor_fee,
         "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
@@ -124,6 +128,78 @@ def _extract_summary(result: WorkflowResult) -> str:
             summaries.append(f"[{source}] {summary}")
 
     return " | ".join(summaries) if summaries else "No findings extracted."
+
+
+def _extract_source_content(findings: list[dict]) -> list[dict[str, Any]]:
+    """
+    Extract structured content from findings for RAG/downstream use.
+
+    Returns array of source objects with:
+    - source: API source name
+    - type: content type (overview, documentation, code, url_content, etc.)
+    - url: source URL if available
+    - title: content title if available
+    - content: full extracted text content
+    - relevance: high/medium/low based on source type
+    """
+    sources = []
+
+    for finding in findings:
+        source_name = finding.get("source", "unknown")
+        source_type = finding.get("type", "unknown")
+        data = finding.get("data", {})
+        url = finding.get("url", "")
+
+        if source_name == "perplexity":
+            # Perplexity overview - high relevance, LLM-synthesized
+            choices = data.get("choices", [])
+            if choices:
+                content = choices[0].get("message", {}).get("content", "")
+                if content:
+                    sources.append({
+                        "source": source_name,
+                        "type": "overview",
+                        "url": None,
+                        "title": "AI-Generated Overview",
+                        "content": content,
+                        "relevance": "high"
+                    })
+
+        elif source_name == "jina_read":
+            # Deep URL content - high relevance, fills knowledge gaps
+            content = data.get("content", data.get("text", ""))
+            title = data.get("title", "")
+            if content:
+                sources.append({
+                    "source": source_name,
+                    "type": "url_content",
+                    "url": url or data.get("url", ""),
+                    "title": title,
+                    "content": content[:8000],  # Cap at 8K chars per source
+                    "relevance": "high"
+                })
+
+        elif source_name in ("ref", "exa", "exa_code", "jina", "jina_arxiv"):
+            # Search results - medium relevance, multiple items
+            results = data.get("results", data.get("data", []))
+            if isinstance(results, list):
+                for r in results[:5]:  # Top 5 results per source
+                    text = r.get("text", r.get("content", r.get("description", "")))
+                    title = r.get("title", "")
+                    result_url = r.get("url", r.get("link", ""))
+
+                    if text:
+                        relevance = "high" if source_name in ("exa_code", "jina_arxiv") else "medium"
+                        sources.append({
+                            "source": source_name,
+                            "type": source_type,
+                            "url": result_url,
+                            "title": title,
+                            "content": text[:4000],  # Cap at 4K chars per result
+                            "relevance": relevance
+                        })
+
+    return sources
 
 
 def _summarize_finding(source: str, data: dict, max_length: int = 500) -> str:

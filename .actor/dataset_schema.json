@@ -52,6 +52,41 @@
       "type": "string",
       "description": "AI-generated synthesis of findings (synthesis workflow only)"
     },
+    "source_content": {
+      "title": "Source Content",
+      "type": "array",
+      "description": "Structured content extracted from each source for RAG/downstream use",
+      "items": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string",
+            "description": "API source (perplexity, jina_read, ref, exa, etc.)"
+          },
+          "type": {
+            "type": "string",
+            "description": "Content type (overview, url_content, documentation, code_examples, etc.)"
+          },
+          "url": {
+            "type": "string",
+            "description": "Source URL if available"
+          },
+          "title": {
+            "type": "string",
+            "description": "Content title if available"
+          },
+          "content": {
+            "type": "string",
+            "description": "Full extracted text content (capped at 8K chars for URL content, 4K for search results)"
+          },
+          "relevance": {
+            "type": "string",
+            "enum": ["high", "medium", "low"],
+            "description": "Relevance rating based on source type"
+          }
+        }
+      }
+    },
     "urls_discovered": {
       "title": "URLs Discovered",
       "type": "array",
