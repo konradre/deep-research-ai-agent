@@ -1,0 +1,38 @@
+{
+  "actorSpecification": 1,
+  "name": "deep-research-ai-agent",
+  "title": "Deep Research AI Agent",
+  "description": "AI-powered multi-source research agent that automatically classifies queries and executes optimal workflows. Cross-validates findings across 4 APIs (Ref, Exa, Jina, Perplexity). BYOK - bring your own API keys.",
+  "version": "1.0.0",
+  "buildTag": "latest",
+  "meta": {
+    "templateId": "python-start"
+  },
+  "input": "./input_schema.json",
+  "dockerfile": "./Dockerfile",
+  "storages": {
+    "dataset": {
+      "actorSpecification": 1,
+      "title": "Research Results",
+      "views": {
+        "overview": {
+          "title": "Research Overview",
+          "transformation": {
+            "fields": ["query", "workflow", "duration_seconds", "source_count", "actor_fee", "timestamp"]
+          },
+          "display": {
+            "component": "table",
+            "properties": {
+              "query": { "label": "Query", "format": "text" },
+              "workflow": { "label": "Workflow", "format": "text" },
+              "duration_seconds": { "label": "Duration (s)", "format": "number" },
+              "source_count": { "label": "Sources", "format": "number" },
+              "actor_fee": { "label": "Fee ($)", "format": "number" },
+              "timestamp": { "label": "Timestamp", "format": "text" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

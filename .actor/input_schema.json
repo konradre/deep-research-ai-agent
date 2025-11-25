@@ -1,0 +1,66 @@
+{
+  "title": "Deep Research AI Agent",
+  "description": "AI-powered multi-source research with automatic workflow classification. <b>BYOK Model:</b> You provide API keys, pay providers directly. <b>Tiered Pricing:</b> Direct $0.065-0.10, Exploratory $0.13-0.20, Synthesis $0.195-0.30 (varies by subscription tier).",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "query": {
+      "title": "Research Query",
+      "type": "string",
+      "description": "Your research question or topic. Be specific for better results.",
+      "editor": "textarea",
+      "prefill": "Compare LangChain vs LlamaIndex for building RAG applications in 2025"
+    },
+    "workflow_type": {
+      "title": "Research Depth",
+      "type": "string",
+      "description": "How deep should the research go? Auto-detect analyzes your query and picks the best approach.",
+      "editor": "select",
+      "default": "auto",
+      "enum": ["auto", "direct", "exploratory", "synthesis"],
+      "enumTitles": [
+        "Auto-detect (recommended)",
+        "Direct (30-60s) - Single authoritative source",
+        "Exploratory (1-2min) - Deep dive with URL analysis",
+        "Synthesis (3-5min) - Cross-source validation"
+      ]
+    },
+    "max_sources": {
+      "title": "Maximum Sources",
+      "type": "integer",
+      "description": "Maximum sources to analyze. Higher = more thorough but costs more.",
+      "default": 10,
+      "minimum": 3,
+      "maximum": 25
+    },
+    "ref_api_key": {
+      "title": "Ref API Key",
+      "type": "string",
+      "description": "Your Ref.dev API key for documentation search. Get one at https://ref.dev",
+      "editor": "textfield",
+      "isSecret": true
+    },
+    "exa_api_key": {
+      "title": "Exa API Key",
+      "type": "string",
+      "description": "Your Exa.ai API key for code and semantic search. Get one at https://exa.ai",
+      "editor": "textfield",
+      "isSecret": true
+    },
+    "jina_api_key": {
+      "title": "Jina API Key",
+      "type": "string",
+      "description": "Your Jina.ai API key for web search and URL reading. Get one at https://jina.ai",
+      "editor": "textfield",
+      "isSecret": true
+    },
+    "perplexity_api_key": {
+      "title": "Perplexity API Key",
+      "type": "string",
+      "description": "Your Perplexity API key for synthesis. Get one at https://perplexity.ai",
+      "editor": "textfield",
+      "isSecret": true
+    }
+  },
+  "required": ["query", "ref_api_key", "exa_api_key", "jina_api_key", "perplexity_api_key"]
+}

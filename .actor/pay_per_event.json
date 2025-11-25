@@ -1,0 +1,40 @@
+{
+  "events": [
+    {
+      "name": "research-direct",
+      "description": "Direct workflow - single authoritative source lookup (30-60s)",
+      "pricingModel": "TIERED",
+      "pricePerEventByUserCategory": {
+        "FREE": 0.10,
+        "BRONZE": 0.09,
+        "SILVER": 0.08,
+        "GOLD": 0.065
+      },
+      "isEnabled": true
+    },
+    {
+      "name": "research-exploratory",
+      "description": "Exploratory workflow - Perplexity-guided deep dive with URL analysis (1-2min)",
+      "pricingModel": "TIERED",
+      "pricePerEventByUserCategory": {
+        "FREE": 0.20,
+        "BRONZE": 0.18,
+        "SILVER": 0.16,
+        "GOLD": 0.13
+      },
+      "isEnabled": true
+    },
+    {
+      "name": "research-synthesis",
+      "description": "Synthesis workflow - Triple Stack cross-validation with synthesis (3-5min)",
+      "pricingModel": "TIERED",
+      "pricePerEventByUserCategory": {
+        "FREE": 0.30,
+        "BRONZE": 0.27,
+        "SILVER": 0.24,
+        "GOLD": 0.195
+      },
+      "isEnabled": true
+    }
+  ]
+}

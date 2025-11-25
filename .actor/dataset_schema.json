@@ -1,0 +1,85 @@
+{
+  "title": "Deep Research Results",
+  "type": "object",
+  "properties": {
+    "query": {
+      "title": "Query",
+      "type": "string",
+      "description": "The research query that was executed"
+    },
+    "workflow": {
+      "title": "Workflow",
+      "type": "string",
+      "description": "The workflow type used (direct, exploratory, synthesis)"
+    },
+    "workflow_description": {
+      "title": "Workflow Description",
+      "type": "string",
+      "description": "Human-readable description of the workflow"
+    },
+    "query_type": {
+      "title": "Query Type",
+      "type": "string",
+      "description": "The detected query content type (documentation, code, academic, general)"
+    },
+    "query_type_description": {
+      "title": "Query Type Description",
+      "type": "string",
+      "description": "Human-readable description of the query type"
+    },
+    "duration_seconds": {
+      "title": "Duration",
+      "type": "number",
+      "description": "Total execution time in seconds"
+    },
+    "source_count": {
+      "title": "Source Count",
+      "type": "integer",
+      "description": "Number of sources consulted"
+    },
+    "successful_sources": {
+      "title": "Successful Sources",
+      "type": "integer",
+      "description": "Number of sources that returned results"
+    },
+    "findings_summary": {
+      "title": "Findings Summary",
+      "type": "string",
+      "description": "Brief summary of key findings"
+    },
+    "synthesis": {
+      "title": "Synthesis",
+      "type": "string",
+      "description": "AI-generated synthesis of findings (synthesis workflow only)"
+    },
+    "urls_discovered": {
+      "title": "URLs Discovered",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of source URLs consulted during research"
+    },
+    "actor_fee": {
+      "title": "Actor Fee",
+      "type": "number",
+      "description": "Fee charged for this research (USD)"
+    },
+    "timestamp": {
+      "title": "Timestamp",
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO timestamp of when research completed"
+    },
+    "success": {
+      "title": "Success",
+      "type": "boolean",
+      "description": "Whether the research completed successfully"
+    },
+    "error": {
+      "title": "Error",
+      "type": "string",
+      "description": "Error message if research failed"
+    }
+  }
+}
