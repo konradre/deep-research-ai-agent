@@ -156,6 +156,23 @@ async def execute_direct(client: ResearchClient, query: str) -> WorkflowResult:
                 if exa_result.urls_found:
                     urls.extend(exa_result.urls_found)
 
+    # Deep read top 2 URLs for authoritative content (keep fast)
+    unique_urls = list(dict.fromkeys(urls))[:2]
+
+    if unique_urls:
+        sources_tried += len(unique_urls)
+        read_results = await client.jina_read_urls(unique_urls)
+
+        for i, result in enumerate(read_results):
+            if result.success and result.data:
+                successful += 1
+                findings.append({
+                    "source": "jina_read",
+                    "type": "url_content",
+                    "url": unique_urls[i] if i < len(unique_urls) else "unknown",
+                    "data": result.data
+                })
+
     return WorkflowResult(
         workflow="direct",
         query_type=query_type,
