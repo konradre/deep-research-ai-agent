@@ -165,6 +165,35 @@ You provide API keys, you pay providers directly. No markup on API costs.
 
 **Agent-First Default:** `output_markdown=false` optimizes for MCP/API integrations - faster execution, lower cost, structured JSON output with `source_content` for RAG pipelines.
 
+## For AI Agents (MCP Integration)
+
+AI agents (Claude, GPT, custom) can call this actor directly via **Apify Actor MCP Server**.
+
+**Setup:**
+```json
+{
+  "mcpServers": {
+    "apify": {
+      "command": "npx",
+      "args": ["-y", "@apify/actors-mcp-server"]
+    }
+  }
+}
+```
+
+**Agent Workflow:**
+1. `call-actor` with query, workflow_type, and your API keys
+2. `get-actor-output` to retrieve structured JSON with `source_content`
+3. Feed `source_content` array directly to your RAG pipeline
+
+**Why This Actor for MCP?**
+- **Agent-first output** - `source_content` arrays ready for RAG ingestion
+- **Deep content** - Full page content (8K chars), not snippets
+- **Cross-validated** - Multiple sources triangulated automatically
+- **Structured JSON** - Parse directly, no markdown conversion needed
+
+See [Apify MCP docs](https://docs.apify.com/platform/integrations/mcp) for full setup guide.
+
 ## FAQ
 
 **Q: Why 4 different APIs?**
