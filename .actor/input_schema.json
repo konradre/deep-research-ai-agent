@@ -33,6 +33,12 @@
       "minimum": 3,
       "maximum": 25
     },
+    "output_markdown": {
+      "title": "Generate Markdown Report",
+      "type": "boolean",
+      "description": "Generate human-readable .md report to key-value store. Default false for MCP/API integrations. When true, adds synthesis step to exploratory workflow for polished output.",
+      "default": false
+    },
     "ref_api_key": {
       "title": "Ref API Key",
       "type": "string",

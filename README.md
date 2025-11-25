@@ -1,16 +1,20 @@
 # Deep Research AI Agent
 
-**Multi-source research agent that gathers, cross-validates, and synthesizes information from 4 specialized AI APIs.**
+**Agent-first multi-source research designed for MCP integrations and RAG pipelines.**
 
-AI-powered deep research for RAG pipelines, AI agents, content research, technical documentation, academic discovery, and automated fact-checking. Automatically classifies queries and selects optimal research workflows.
+AI-powered deep research that returns structured JSON with full source content for downstream AI consumption. Automatically classifies queries, gathers from 4 specialized APIs (Ref, Exa, Jina, Perplexity), and provides rich `source_content` arrays optimized for retrieval-augmented generation.
+
+**Use Cases:** MCP tool integrations, RAG pipelines, AI agent research, content enrichment, technical documentation lookup, academic discovery, automated fact-checking.
 
 ## Key Features
 
+- **Agent-First Design** - JSON output with `source_content` arrays optimized for RAG/MCP consumption
+- **Deep Content Extraction** - Reads actual page content (up to 8K chars per URL), not just search snippets
 - **Multi-Source Cross-Validation** - Triangulates findings across Ref, Exa, Jina, and Perplexity
 - **Intelligent Query Classification** - Auto-routes to documentation, code, academic, or general search
 - **3 Research Workflows** - Direct (fast lookup), Exploratory (deep dive), Synthesis (cross-validation)
 - **BYOK Model** - Bring your own API keys for full cost transparency
-- **Structured Output** - Clean JSON reports with citations, source URLs, and markdown synthesis
+- **Optional Markdown Report** - Human-readable `.md` output when `output_markdown=true`
 
 ## How It Works
 
@@ -91,7 +95,7 @@ You provide API keys, you pay providers directly. No markup on API costs.
 
 ## Output Format
 
-**Dataset (JSON):**
+**Dataset (JSON) - Agent-First:**
 ```json
 {
   "query": "Compare FastAPI vs Flask",
@@ -102,6 +106,24 @@ You provide API keys, you pay providers directly. No markup on API costs.
   "successful_sources": 4,
   "findings_summary": "Key differences...",
   "synthesis": "Based on cross-validation across multiple sources...",
+  "source_content": [
+    {
+      "source": "jina_read",
+      "type": "url_content",
+      "url": "https://docs.example.com/comparison",
+      "title": "FastAPI vs Flask Guide",
+      "content": "Full page content up to 8K chars...",
+      "relevance": "high"
+    },
+    {
+      "source": "exa_code",
+      "type": "code_examples",
+      "url": "https://github.com/...",
+      "title": "Production API Example",
+      "content": "Code implementation details...",
+      "relevance": "high"
+    }
+  ],
   "urls_discovered": ["https://...", "https://..."],
   "actor_fee": 0.30,
   "timestamp": "2025-01-15T10:30:00Z",
@@ -109,7 +131,7 @@ You provide API keys, you pay providers directly. No markup on API costs.
 }
 ```
 
-**Key-Value Store:** `report.md` - Human-readable markdown report with full synthesis
+**Key-Value Store (Optional):** Set `output_markdown=true` to generate `report.md` - Human-readable markdown report with synthesis section.
 
 ## Example Queries
 
@@ -130,14 +152,18 @@ You provide API keys, you pay providers directly. No markup on API costs.
 
 ## Input Schema
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `query` | string | Yes | Your research question |
-| `workflow` | enum | No | `auto`, `direct`, `exploratory`, `synthesis` (default: auto) |
-| `ref_api_key` | string | Yes | Ref API key |
-| `exa_api_key` | string | Yes | Exa API key |
-| `jina_api_key` | string | Yes | Jina API key |
-| `perplexity_api_key` | string | Yes | Perplexity API key |
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `query` | string | Yes | — | Your research question |
+| `workflow_type` | enum | No | `auto` | `auto`, `direct`, `exploratory`, `synthesis` |
+| `max_sources` | integer | No | 10 | Maximum sources to analyze (3-25) |
+| `output_markdown` | boolean | No | `false` | Generate `.md` report. When true, adds synthesis to exploratory workflow |
+| `ref_api_key` | string | Yes | — | Ref API key |
+| `exa_api_key` | string | Yes | — | Exa API key |
+| `jina_api_key` | string | Yes | — | Jina API key |
+| `perplexity_api_key` | string | Yes | — | Perplexity API key |
+
+**Agent-First Default:** `output_markdown=false` optimizes for MCP/API integrations - faster execution, lower cost, structured JSON output with `source_content` for RAG pipelines.
 
 ## FAQ
 

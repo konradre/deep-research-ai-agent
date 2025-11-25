@@ -32,6 +32,7 @@ async def main() -> None:
         query = actor_input.get("query", "").strip()
         workflow_type = actor_input.get("workflow_type", "auto")
         max_sources = actor_input.get("max_sources", 10)
+        output_markdown = actor_input.get("output_markdown", False)
 
         # API keys (required)
         ref_key = actor_input.get("ref_api_key", "")
@@ -87,7 +88,12 @@ async def main() -> None:
             if workflow == "direct":
                 result = await execute_direct(client, query)
             elif workflow == "exploratory":
-                result = await execute_exploratory(client, query, max_urls=min(max_sources, 5))
+                # Synthesize only if markdown output requested (agent-first design)
+                result = await execute_exploratory(
+                    client, query,
+                    max_urls=min(max_sources, 5),
+                    synthesize=output_markdown
+                )
             elif workflow == "synthesis":
                 result = await execute_synthesis(client, query, max_sources=max_sources)
             else:
@@ -105,16 +111,20 @@ async def main() -> None:
             await Actor.charge(event_name=event_name, count=1)
             Actor.log.info(f"Charged event: {event_name} (${actor_fee})")
 
-            # Generate reports
+            # Generate structured report (always - for dataset/JSON output)
             structured_report = generate_report(query, result, duration, actor_fee)
-            markdown_report = generate_markdown_report(query, result, duration, actor_fee)
 
             # Push to dataset
             await Actor.push_data(structured_report)
 
-            # Store markdown in key-value store
-            default_store = await Actor.open_key_value_store()
-            await default_store.set_value("report.md", markdown_report, content_type="text/markdown")
+            # Generate markdown report only if requested
+            report_available = False
+            if output_markdown:
+                markdown_report = generate_markdown_report(query, result, duration, actor_fee)
+                default_store = await Actor.open_key_value_store()
+                await default_store.set_value("report.md", markdown_report, content_type="text/markdown")
+                report_available = True
+                Actor.log.info("Markdown report generated: report.md")
 
             # Set output
             await Actor.set_value("OUTPUT", {
@@ -127,7 +137,7 @@ async def main() -> None:
                 "findings_count": len(result.findings),
                 "urls_discovered": len(result.urls_discovered),
                 "actor_fee": actor_fee,
-                "report_available": True
+                "report_available": report_available
             })
 
             Actor.log.info("Research completed successfully!")

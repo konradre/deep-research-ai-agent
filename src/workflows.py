@@ -187,19 +187,25 @@ async def execute_direct(client: ResearchClient, query: str) -> WorkflowResult:
 async def execute_exploratory(
     client: ResearchClient,
     query: str,
-    max_urls: int = 5
+    max_urls: int = 5,
+    synthesize: bool = False
 ) -> WorkflowResult:
     """
     EXPLORATORY workflow: Perplexity-guided deep dive with URL analysis.
 
     Best for: Unfamiliar topics, general concepts, emerging technology.
-    Duration: 1-2 minutes
-    Cost: Medium
+    Duration: 1-2 minutes (longer with synthesis)
+    Cost: Medium (higher with synthesis)
 
     Strategy:
     1. Perplexity search for overview + citations
     2. Query-type-aware secondary search (arXiv for academic, code search for code, etc.)
     3. Deep read selected URLs with Jina
+    4. Optional: Synthesize findings (when output_markdown=true)
+
+    Args:
+        synthesize: If True, adds Perplexity synthesis step for polished .md output.
+                   Default False for MCP/API integrations (agent-first design).
     """
     findings = []
     urls = []
@@ -265,9 +271,9 @@ async def execute_exploratory(
                     "data": result.data
                 })
 
-    # Step 4: Synthesize findings for polished output
+    # Step 4: Synthesize findings for polished output (only if requested)
     synthesis_text = None
-    if findings:
+    if synthesize and findings:
         context_parts = []
         for f in findings:
             source = f.get("source", "unknown")
