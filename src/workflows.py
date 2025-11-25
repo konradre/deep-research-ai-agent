@@ -248,6 +248,44 @@ async def execute_exploratory(
                     "data": result.data
                 })
 
+    # Step 4: Synthesize findings for polished output
+    synthesis_text = None
+    if findings:
+        context_parts = []
+        for f in findings:
+            source = f.get("source", "unknown")
+            data = f.get("data", {})
+
+            if source == "perplexity":
+                choices = data.get("choices", [])
+                if choices:
+                    content = choices[0].get("message", {}).get("content", "")
+                    context_parts.append(f"[Perplexity Overview] {content[:2000]}")
+            elif source in ("ref", "exa", "exa_code", "jina", "jina_arxiv"):
+                results = data.get("results", data.get("data", []))
+                if isinstance(results, list):
+                    for r in results[:3]:
+                        text = r.get("text", r.get("content", r.get("description", "")))
+                        if text:
+                            context_parts.append(f"[{source}] {text[:800]}")
+            elif source == "jina_read":
+                content = data.get("content", data.get("text", ""))
+                if content:
+                    url = f.get("url", "")
+                    context_parts.append(f"[URL: {url}] {content[:1200]}")
+
+        if context_parts:
+            context = "\n\n---\n\n".join(context_parts)
+
+            sources_tried += 1
+            synth_result = await client.perplexity_synthesize(query, context)
+
+            if synth_result.success and synth_result.data:
+                successful += 1
+                choices = synth_result.data.get("choices", [])
+                if choices:
+                    synthesis_text = choices[0].get("message", {}).get("content", "")
+
     return WorkflowResult(
         workflow="exploratory",
         query_type=query_type,
@@ -255,6 +293,7 @@ async def execute_exploratory(
         sources_consulted=sources_tried,
         successful_sources=successful,
         findings=findings,
+        synthesis=synthesis_text,
         urls_discovered=unique_urls
     )
 
